@@ -3,14 +3,14 @@ import {App} from 'aws-cdk-lib';
 
 import {RestApiStack} from './rest-api/rest-api.stack';
 import {CertificateStack} from './certificate/certificate.stack';
-import {WebhookStack} from './webhook/webhook.stack';
+import {WebhookStatefulStack} from './webhook/webhook.stack';
 
 const app = new App();
 const stage = process.env.STAGE || 'dev';
 const domainName = 'slippys.cool';
-const subdomain = 'webhooks';
+const subdomain = 'webhook';
 
-const certStack = new CertificateStack(app, `Certificate-${stage}`, {
+const certStack = new CertificateStack(app, `Certificate-${stage}-Webhook`, {
     stage,
     env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -21,11 +21,11 @@ const certStack = new CertificateStack(app, `Certificate-${stage}`, {
     subdomain,
 });
 
-const webhookStack =  new WebhookStack(app, `WebhookStack-${stage}`, {
+const webhookStack =  new WebhookStatefulStack(app, `WebhookStack-${stage}`, {
     env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 });
 
-new RestApiStack(app, `RestAPIStack-${stage}`, {
+new RestApiStack(app, `WebhookRestAPIStack-${stage}`, {
     env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
     crossRegionReferences: true,
     stage,

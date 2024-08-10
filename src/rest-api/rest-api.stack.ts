@@ -6,7 +6,7 @@ import {Cors, EndpointType, LambdaIntegration, RestApi} from 'aws-cdk-lib/aws-ap
 import {ARecord, HostedZone, RecordTarget} from 'aws-cdk-lib/aws-route53';
 import {ApiGateway} from 'aws-cdk-lib/aws-route53-targets';
 import {CertificateStack} from '../certificate/certificate.stack';
-import { WebhookStack } from '../webhook/webhook.stack';
+import { WebhookStatefulStack } from '../webhook/webhook.stack';
 
 
 export type RestApiStackProps = StackProps & {
@@ -14,14 +14,14 @@ export type RestApiStackProps = StackProps & {
   certStack: CertificateStack,
   subdomain: string,
   domainName: string,
-  webhookStack: WebhookStack,
+  webhookStack: WebhookStatefulStack,
 };
 
 export class RestApiStack extends Stack {
   constructor(scope: Construct, id: string, props: RestApiStackProps) {
     super(scope, id, props);
 
-    const apiFunction = new Function(this, 'RestApiHandler', {
+    const apiFunction = new Function(this, 'WebhooksRestApiHandler', {
       runtime: Runtime.NODEJS_18_X,
       handler: 'rest-api-handler.handler',
       code: Code.fromAsset(path.join(__dirname, '..', '..', 'build')),
@@ -34,7 +34,7 @@ export class RestApiStack extends Stack {
 
     const lambdaIntegration = new LambdaIntegration(apiFunction);
 
-    const api = new RestApi(this, `${props.stage}ApiServerlessTemplate`, {
+    const api = new RestApi(this, `${props.stage}WebhooksResApi`, {
       defaultCorsPreflightOptions: {
         allowOrigins: Cors.ALL_ORIGINS,
         allowMethods: Cors.ALL_METHODS
