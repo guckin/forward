@@ -6,6 +6,7 @@ import {Cors, EndpointType, LambdaIntegration, RestApi} from 'aws-cdk-lib/aws-ap
 import {ARecord, HostedZone, RecordTarget} from 'aws-cdk-lib/aws-route53';
 import {ApiGateway} from 'aws-cdk-lib/aws-route53-targets';
 import {CertificateStack} from '../certificate/certificate.stack';
+import { WebhookStack } from '../webhook/webhook.stack';
 
 
 export type RestApiStackProps = StackProps & {
@@ -13,6 +14,7 @@ export type RestApiStackProps = StackProps & {
   certStack: CertificateStack,
   subdomain: string,
   domainName: string,
+  webhookStack: WebhookStack,
 };
 
 export class RestApiStack extends Stack {
@@ -27,6 +29,8 @@ export class RestApiStack extends Stack {
         STAGE: props.stage
       }
     });
+
+    props.webhookStack.tableReadWrite(apiFunction);
 
     const lambdaIntegration = new LambdaIntegration(apiFunction);
 

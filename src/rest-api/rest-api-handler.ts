@@ -2,11 +2,21 @@ import {
     APIGatewayProxyEventV2,
     APIGatewayProxyResultV2
 } from 'aws-lambda/trigger/api-gateway-proxy';
+import {DynamoDBClient, PutItemCommand, QueryCommand} from '@aws-sdk/client-dynamodb';
 
 export type Handler = (event: APIGatewayProxyEventV2) => Promise<APIGatewayProxyResultV2>;
 
+const dynamoClient = new DynamoDBClient({});
 
 const getWebhookHandler: Handler = async () => {
+    const command = new QueryCommand({
+        TableName: 'WebhookTable',
+        KeyConditionExpression: 'userid = :userid',
+        ExpressionAttributeValues: {
+            ':userid': {S: 'user1'},
+        },
+    });
+    await dynamoClient.send(command);
     return {
         statusCode: 200,
         body: JSON.stringify({items: []}),
@@ -16,7 +26,15 @@ const getWebhookHandler: Handler = async () => {
 const postWebhooksHandler: Handler = async (event) => {
     const body = parseBody(event.body);
     const url = parseUrl(body.url);
-    console.log(url);
+    const command = new PutItemCommand({
+        TableName: 'WebhookTable',
+        Item: {
+            userid: {S: 'user1'},
+            timestamp: {N: Date.now().toString()},
+            url: {S: url.toString()},
+        }
+    });
+    await dynamoClient.send(command);
     return {
         statusCode: 201,
         body: JSON.stringify({message: 'Webhook created'}),
@@ -25,14 +43,13 @@ const postWebhooksHandler: Handler = async (event) => {
 
 const parseUrl = (url?: string) => {
     try {
-        new URL(url ?? '');
+        return new URL(url ?? '');
     } catch (error) {
         throw {
             statusCode: 400,
             message: 'Invalid URL',
         };
     }
-    return url;
 }
 
 
