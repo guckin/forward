@@ -1,7 +1,7 @@
 import {Construct} from 'constructs';
 import {AttributeType, Table} from 'aws-cdk-lib/aws-dynamodb';
 import {IGrantable} from 'aws-cdk-lib/aws-iam';
-import {Stack, StackProps} from 'aws-cdk-lib';
+import {Stack} from 'aws-cdk-lib';
 
 export class WebhookStack extends Stack {
 
