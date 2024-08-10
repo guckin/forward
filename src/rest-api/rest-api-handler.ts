@@ -16,10 +16,14 @@ const getWebhookHandler: Handler = async () => {
             ':userid': {S: 'user1'},
         },
     });
-    await dynamoClient.send(command);
+    const {Items} = await dynamoClient.send(command);
+    const items = (Items ?? []).map(item => ({
+        url: item.url.S,
+        timestamp: parseInt(item.timestamp.N ?? '0'),
+    }));
     return {
         statusCode: 200,
-        body: JSON.stringify({items: []}),
+        body: JSON.stringify({items}),
     };
 };
 
