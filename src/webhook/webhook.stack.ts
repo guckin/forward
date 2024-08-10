@@ -1,14 +1,14 @@
 import {Construct} from 'constructs';
 import {AttributeType, Table} from 'aws-cdk-lib/aws-dynamodb';
 import {IGrantable} from 'aws-cdk-lib/aws-iam';
-import {Stack} from 'aws-cdk-lib';
+import {Stack, StackProps} from 'aws-cdk-lib';
 
 export class WebhookStack extends Stack {
 
     private table: Table;
 
-    constructor(scope: Construct, id: string,) {
-        super(scope, id);
+    constructor(scope: Construct, id: string, props: StackProps) {
+        super(scope, id, props);
 
         this.table = new Table(this, 'WebhookTable', {
             tableName: 'WebhookTable',
