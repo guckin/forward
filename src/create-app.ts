@@ -7,7 +7,7 @@ import {CertificateStack} from './certificate/certificate.stack';
 const createApp = new App();
 const stage = process.env.STAGE || 'dev';
 const domainName = 'slippys.cool';
-const subdomain = 'serverless-template';
+const subdomain = 'webhooks';
 
 const certStack = new CertificateStack(createApp, `Certificate-${stage}`, {
     stage,
