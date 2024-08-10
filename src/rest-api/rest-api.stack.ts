@@ -6,15 +6,14 @@ import {Cors, EndpointType, LambdaIntegration, RestApi} from 'aws-cdk-lib/aws-ap
 import {ARecord, HostedZone, RecordTarget} from 'aws-cdk-lib/aws-route53';
 import {ApiGateway} from 'aws-cdk-lib/aws-route53-targets';
 import {CertificateStack} from '../certificate/certificate.stack';
-import { WebhookStatefulStack } from '../webhook/webhook.stack';
-
+import { WebhookStack } from '../webhook/webhook.stack';
 
 export type RestApiStackProps = StackProps & {
   stage: string,
   certStack: CertificateStack,
   subdomain: string,
   domainName: string,
-  webhookStack: WebhookStatefulStack,
+  webhookStack: WebhookStack,
 };
 
 export class RestApiStack extends Stack {

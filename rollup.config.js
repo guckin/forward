@@ -24,4 +24,5 @@ function bundleHandler(input, output) {
 
 export default [
     bundleHandler('src/rest-api/rest-api-handler.ts', 'build/rest-api-handler.mjs'),
+    bundleHandler('src/webhook/dispatcher.ts', 'build/dispatcher.mjs'),
 ];
