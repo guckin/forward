@@ -24,9 +24,10 @@ export class WebhookStack extends Stack {
             removalPolicy: RemovalPolicy.DESTROY
         });
 
-        new Function(this, 'WebhooksRestApiHandler', {
+        new Function(this, 'DispatcherHandler', {
             runtime: Runtime.NODEJS_18_X,
             handler: 'dispatcher.handler',
+            description: 'Dispatches webhook events to registered webhooks.',
             code: Code.fromAsset(path.join(__dirname, '..', '..', 'build', 'dispatcher')),
             environment: {
                 TABLE_NAME: this.getTableName()
