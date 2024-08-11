@@ -23,6 +23,7 @@ const certStack = new CertificateStack(app, `Certificate-${stage}-Webhook`, {
 
 const webhookStack =  new WebhookStack(app, `WebhookStack-${stage}`, {
     env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+    stage,
 });
 
 new RestApiStack(app, `WebhookRestAPIStack-${stage}`, {

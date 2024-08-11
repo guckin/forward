@@ -8,9 +8,11 @@ export type Handler = (event: APIGatewayProxyEventV2) => Promise<APIGatewayProxy
 
 const dynamoClient = new DynamoDBClient({});
 
+const tableName = process.env.TABLE_NAME ?? '';
+
 const getWebhookHandler: Handler = async () => {
     const command = new QueryCommand({
-        TableName: 'WebhookTable',
+        TableName: tableName,
         KeyConditionExpression: 'userid = :userid',
         ExpressionAttributeValues: {
             ':userid': {S: 'user1'},
@@ -31,7 +33,7 @@ const postWebhooksHandler: Handler = async (event) => {
     const body = parseBody(event.body);
     const url = parseUrl(body.url);
     const command = new PutItemCommand({
-        TableName: 'WebhookTable',
+        TableName: tableName,
         Item: {
             userid: {S: 'user1'},
             timestamp: {N: Date.now().toString()},

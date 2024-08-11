@@ -4,6 +4,7 @@ import {DynamoDBClient, QueryCommand} from '@aws-sdk/client-dynamodb';
 import {Event} from './model';
 
 const dynamoClient = new DynamoDBClient({});
+const tableName = process.env.TABLE_NAME ?? '';
 
 export const handler = async (event: Event): Promise<void> => {
     const webhooks = await listWebhooks(event.userId);
@@ -17,7 +18,7 @@ export const handler = async (event: Event): Promise<void> => {
 
 async function listWebhooks(userId: string): Promise<Webhook[]> {
     const command = new QueryCommand({
-        TableName: 'WebhookTable',
+        TableName: tableName,
         KeyConditionExpression: 'userid = :userid',
         ExpressionAttributeValues: {
             ':userid': {S: userId},
