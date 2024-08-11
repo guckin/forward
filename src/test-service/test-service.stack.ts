@@ -21,7 +21,7 @@ export class TestServiceStack extends Stack {
 
         const apiFunction = new Function(this, 'TestServiceApiHandler', {
             runtime: Runtime.NODEJS_18_X,
-            handler: 'test-service-hanlder.handler',
+            handler: 'test-service-handler.handler',
             code: Code.fromAsset(path.join(__dirname, '..', '..', 'build', 'test-service')),
         });
 
