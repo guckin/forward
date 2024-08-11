@@ -1,10 +1,10 @@
 import {
-    APIGatewayProxyEventV2,
-    APIGatewayProxyResultV2
+    APIGatewayProxyEvent,
+     APIGatewayProxyResult,
 } from 'aws-lambda/trigger/api-gateway-proxy';
 import {DynamoDBClient, PutItemCommand, QueryCommand} from '@aws-sdk/client-dynamodb';
 
-export type Handler = (event: APIGatewayProxyEventV2) => Promise<APIGatewayProxyResultV2>;
+export type Handler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>;
 
 const dynamoClient = new DynamoDBClient({});
 
@@ -59,7 +59,7 @@ const parseUrl = (url?: string) => {
 }
 
 
-const parseBody = (body?: string) => {
+const parseBody = (body: string | null) => {
     try {
         return JSON.parse(body ?? '');
     } catch (error) {
@@ -72,9 +72,9 @@ const parseBody = (body?: string) => {
 
 export const handler: Handler = async event => {
    try {
-       if (event.requestContext.http.method === 'GET' && event.rawPath === '/webhooks') {
+       if (event.httpMethod === 'GET' && event.path === '/webhooks') {
            return getWebhookHandler(event);
-       } else if (event.requestContext.http.method === 'POST' && event.rawPath === '/webhooks') {
+       } else if (event.httpMethod === 'POST' && event.path === '/webhooks') {
            return postWebhooksHandler(event);
        }
        else {
