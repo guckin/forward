@@ -43,7 +43,7 @@ jobs:
                 run: |
                     npm test
 
-            -   name:
+            -   name: Coverage Report
                 uses: artiomtr/jest-coverage-report-action@v2
                 with:
                     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -54,6 +54,9 @@ jobs:
         steps:
             -   name: Checkout
                 uses: actions/checkout@v3
+
+            -   name: Init STAGE variable
+                run: echo "STAGE=pr-${{ github.event.number }}-${{ env.GITHUB_HEAD_REF_SLUG }}" >> $GITHUB_ENV
 
             -   name: Install Dependencies
                 run: |
@@ -70,7 +73,7 @@ jobs:
                     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                     AWS_DEFAULT_REGION: 'us-west-2'
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                    STAGE: 'prod'
+                    STAGE: ${{ env.STAGE }}
 
     deploy:
         name: Deploy
@@ -114,7 +117,7 @@ jobs:
                         The api was successfully deploy ✅
                         
                         ### Url
-                        https://orders.${{ env.STAGE }}.slippys.cool
+                        https://webhooks.${{ env.STAGE }}.slippys.cool
                         ### Stage
                         `${{ env.STAGE }}`
                         ### E2e Tests

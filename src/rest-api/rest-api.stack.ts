@@ -6,15 +6,14 @@ import {Cors, EndpointType, LambdaIntegration, RestApi} from 'aws-cdk-lib/aws-ap
 import {ARecord, HostedZone, RecordTarget} from 'aws-cdk-lib/aws-route53';
 import {ApiGateway} from 'aws-cdk-lib/aws-route53-targets';
 import {CertificateStack} from '../certificate/certificate.stack';
-import { WebhookStatefulStack } from '../webhook/webhook.stack';
-
+import { WebhookStack } from '../webhook/webhook.stack';
 
 export type RestApiStackProps = StackProps & {
   stage: string,
   certStack: CertificateStack,
   subdomain: string,
   domainName: string,
-  webhookStack: WebhookStatefulStack,
+  webhookStack: WebhookStack,
 };
 
 export class RestApiStack extends Stack {
@@ -24,9 +23,9 @@ export class RestApiStack extends Stack {
     const apiFunction = new Function(this, 'WebhooksRestApiHandler', {
       runtime: Runtime.NODEJS_18_X,
       handler: 'rest-api-handler.handler',
-      code: Code.fromAsset(path.join(__dirname, '..', '..', 'build')),
+      code: Code.fromAsset(path.join(__dirname, '..', '..', 'build', 'rest-api')),
       environment: {
-        STAGE: props.stage
+        TABLE_NAME: props.webhookStack.getTableName(),
       }
     });
 

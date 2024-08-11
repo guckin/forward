@@ -9,12 +9,12 @@ function bundleHandler(input, output) {
         input,
         output: {
             file: output,
-            sourcemap: true,
-            format: 'es'
+            format: 'es',
+            inlineDynamicImports: true,
         },
         plugins: [
             typescript(),
-            resolve({exportConditions: ['node'], preferBuiltins: true}),
+            resolve({exportConditions: ['node'], preferBuiltins: true,}),
             commonjs(),
             terser(),
             json()
@@ -23,5 +23,7 @@ function bundleHandler(input, output) {
 }
 
 export default [
-    bundleHandler('src/rest-api/rest-api-handler.ts', 'build/rest-api-handler.mjs'),
+    bundleHandler('src/rest-api/rest-api-handler.ts', 'build/rest-api/rest-api-handler.mjs'),
+    bundleHandler('src/webhook/dispatcher.ts', 'build/dispatcher/dispatcher.mjs'),
+    bundleHandler('src/test-service/test-service-handler.ts', 'build/test-service/test-service-handler.mjs'),
 ];

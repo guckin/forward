@@ -3,14 +3,17 @@ import {
      APIGatewayProxyResult,
 } from 'aws-lambda/trigger/api-gateway-proxy';
 import {DynamoDBClient, PutItemCommand, QueryCommand} from '@aws-sdk/client-dynamodb';
+import {randomUUID} from 'crypto';
 
 export type Handler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>;
 
 const dynamoClient = new DynamoDBClient({});
 
+const tableName = process.env.TABLE_NAME ?? '';
+
 const getWebhookHandler: Handler = async () => {
     const command = new QueryCommand({
-        TableName: 'WebhookTable',
+        TableName: tableName,
         KeyConditionExpression: 'userid = :userid',
         ExpressionAttributeValues: {
             ':userid': {S: 'user1'},
@@ -20,6 +23,7 @@ const getWebhookHandler: Handler = async () => {
     const items = (Items ?? []).map(item => ({
         url: item.url.S,
         timestamp: parseInt(item.timestamp.N ?? '0'),
+        id: item.id.S,
     }));
     return {
         statusCode: 200,
@@ -31,11 +35,12 @@ const postWebhooksHandler: Handler = async (event) => {
     const body = parseBody(event.body);
     const url = parseUrl(body.url);
     const command = new PutItemCommand({
-        TableName: 'WebhookTable',
+        TableName: tableName,
         Item: {
             userid: {S: 'user1'},
             timestamp: {N: Date.now().toString()},
             url: {S: url.toString()},
+            id: {S: randomUUID()},
         }
     });
     await dynamoClient.send(command);
@@ -82,16 +87,16 @@ export const handler: Handler = async event => {
            };
        }
    } catch (error) {
+       console.error('ERROR: ', error);
        if (isSerializableError(error)) {
            return {
                 statusCode: error.statusCode,
                 body: JSON.stringify({message: error.message}),
            };
        }
-       console.error('*** Unknown Error ***', error);
        return {
            statusCode: 500,
-           body: JSON.stringify({message: 'Internal server error'}),
+           body: JSON.stringify('Internal Server Error'),
        };
    }
 };
