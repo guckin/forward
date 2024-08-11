@@ -27,7 +27,7 @@ export class WebhookStack extends Stack {
         new Function(this, 'WebhooksRestApiHandler', {
             runtime: Runtime.NODEJS_18_X,
             handler: 'dispatcher.handler',
-            code: Code.fromAsset(path.join(__dirname, '..', '..', 'build')),
+            code: Code.fromAsset(path.join(__dirname, '..', '..', 'build', 'dispatcher')),
             environment: {
                 TABLE_NAME: this.getTableName()
             }
