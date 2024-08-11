@@ -3,6 +3,7 @@ import {
      APIGatewayProxyResult,
 } from 'aws-lambda/trigger/api-gateway-proxy';
 import {DynamoDBClient, PutItemCommand, QueryCommand} from '@aws-sdk/client-dynamodb';
+import {randomUUID} from 'crypto';
 
 export type Handler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>;
 
@@ -22,6 +23,7 @@ const getWebhookHandler: Handler = async () => {
     const items = (Items ?? []).map(item => ({
         url: item.url.S,
         timestamp: parseInt(item.timestamp.N ?? '0'),
+        id: item.id.S,
     }));
     return {
         statusCode: 200,
@@ -38,6 +40,7 @@ const postWebhooksHandler: Handler = async (event) => {
             userid: {S: 'user1'},
             timestamp: {N: Date.now().toString()},
             url: {S: url.toString()},
+            id: {S: randomUUID()},
         }
     });
     await dynamoClient.send(command);

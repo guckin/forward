@@ -12,35 +12,46 @@ export type WebhookStackProps = StackProps & {
 
 export class WebhookStack extends Stack {
 
-    private table: Table;
+    private webhookTable: Table;
 
     constructor(scope: Construct, id: string, props: WebhookStackProps) {
         super(scope, id, props);
 
-        this.table = new Table(this, 'WebhookTable', {
+        this.webhookTable = new Table(this, 'WebhookTable', {
             tableName: `WebhookTable${props.stage}`,
             partitionKey: {name: 'userid', type: AttributeType.STRING},
             sortKey: {name: 'timestamp', type: AttributeType.NUMBER},
             removalPolicy: RemovalPolicy.DESTROY
         });
 
-        new Function(this, 'DispatcherHandler', {
+        const eventRecordsTable = new Table(this, 'EventTable', {
+            tableName: `EventTable${props.stage}`,
+            partitionKey: {name: 'webhookId', type: AttributeType.STRING},
+            sortKey: {name: 'timestamp', type: AttributeType.NUMBER},
+            removalPolicy: RemovalPolicy.DESTROY
+        });
+
+        const fn = new Function(this, 'DispatcherHandler', {
             runtime: Runtime.NODEJS_18_X,
             handler: 'dispatcher.handler',
             description: 'Dispatches webhook events to registered webhooks.',
             code: Code.fromAsset(path.join(__dirname, '..', '..', 'build', 'dispatcher')),
             environment: {
-                TABLE_NAME: this.getTableName()
+                TABLE_NAME: this.getTableName(),
+                EVENT_RECORDS_TABLE_NAME: eventRecordsTable.tableName
             }
         });
+
+        this.webhookTable.grantReadWriteData(fn);
+        eventRecordsTable.grantReadWriteData(fn);
     }
 
     public tableReadWrite(resource: IGrantable): void {
-        this.table.grantReadWriteData(resource);
+        this.webhookTable.grantReadWriteData(resource);
     }
 
     public getTableName(): string {
-        return this.table.tableName;
+        return this.webhookTable.tableName;
     }
 
 }
