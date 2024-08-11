@@ -53,4 +53,5 @@ new TestServiceStack(app, `TestServiceStack-${stage}`, {
     domainName,
     subdomain: 'test-service',
     certStack: testCertStack,
+    crossRegionReferences: true,
 });
