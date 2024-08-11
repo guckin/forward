@@ -29,8 +29,8 @@ async function listWebhooks(userId: string): Promise<Webhook[]> {
         timestamp: parseInt(item.timestamp.N ?? '0'),
         userId: item.userid.S ?? '',
     }));
-};
+}
 
 async function dispatchWebhook(webhook: Webhook): Promise<void> {
     await fetch(webhook.url, {method: 'POST', body: JSON.stringify({timestamp: webhook.timestamp})});
-};
+}
