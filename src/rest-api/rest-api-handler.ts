@@ -10,6 +10,8 @@ export type Handler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
 const dynamoClient = new DynamoDBClient({});
 
 const tableName = process.env.TABLE_NAME ?? '';
+const stage = process.env.STAGE ?? '';
+const isProduction = stage === 'prod';
 
 const getWebhookHandler: Handler = async () => {
     const command = new QueryCommand({
@@ -94,9 +96,13 @@ export const handler: Handler = async event => {
            };
        }
        console.error('*** Unknown Error ***', error);
+       const errorMessage = 'Internal Server Error';
+       const body = isProduction ?
+           {message: errorMessage} :
+           {message: errorMessage, error: JSON.stringify(error)};
        return {
            statusCode: 500,
-           body: JSON.stringify({message: 'Internal server error'}),
+           body: JSON.stringify(body),
        };
    }
 };

@@ -26,6 +26,7 @@ export class RestApiStack extends Stack {
       code: Code.fromAsset(path.join(__dirname, '..', '..', 'build', 'rest-api')),
       environment: {
         TABLE_NAME: props.webhookStack.getTableName(),
+        STAGE: props.stage
       }
     });
 
