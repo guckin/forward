@@ -10,6 +10,7 @@ export type Handler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
 const dynamoClient = new DynamoDBClient({});
 
 const tableName = process.env.TABLE_NAME ?? '';
+const eventRecordsTableName = process.env.EVENT_RECORDS_TABLE_NAME ?? '';
 
 const getWebhookHandler: Handler = async () => {
     const command = new QueryCommand({
@@ -30,6 +31,31 @@ const getWebhookHandler: Handler = async () => {
         body: JSON.stringify({items}),
     };
 };
+
+const getEventRecordsHandler: Handler = async (event) => {
+    const parts = event.path.split('/');
+    const webhookId = parts[parts.length - 2];
+    const command = new QueryCommand({
+        TableName: eventRecordsTableName,
+        KeyConditionExpression: 'webhookId = :webhookId',
+        ExpressionAttributeValues: {
+            ':webhookId': {S: webhookId},
+        },
+    });
+    const {Items} = await dynamoClient.send(command);
+    const items = (Items ?? []).map(item => ({
+        userId: item.userid.S,
+        timestamp:item.timestamp.N,
+        type: item.type.S,
+        success: item.success.BOOL,
+        eventId: item.eventId.S,
+        webhookId: item.webhookId.S,
+    }));
+    return {
+        statusCode: 200,
+        body: JSON.stringify({items}),
+    };
+}
 
 const postWebhooksHandler: Handler = async (event) => {
     const body = parseBody(event.body);
@@ -77,6 +103,8 @@ export const handler: Handler = async event => {
    try {
        if (event.httpMethod === 'GET' && event.path === '/webhooks') {
            return getWebhookHandler(event);
+         } else if (event.httpMethod === 'GET' && /^\/webhooks\/[^/]+\/events$/.test(event.path)) {
+           return getEventRecordsHandler(event);
        } else if (event.httpMethod === 'POST' && event.path === '/webhooks') {
            return postWebhooksHandler(event);
        }
