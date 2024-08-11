@@ -55,6 +55,9 @@ jobs:
             -   name: Checkout
                 uses: actions/checkout@v3
 
+            -   name: Init STAGE variable
+                run: echo "STAGE=pr-${{ github.event.number }}-${{ env.GITHUB_HEAD_REF_SLUG }}" >> $GITHUB_ENV
+
             -   name: Install Dependencies
                 run: |
                     npm ci
