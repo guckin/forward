@@ -9,8 +9,8 @@ function bundleHandler(input, output) {
         input,
         output: {
             file: output,
-            sourcemap: true,
-            format: 'es'
+            format: 'es',
+            inlineDynamicImports: true,
         },
         plugins: [
             typescript(),
@@ -18,8 +18,7 @@ function bundleHandler(input, output) {
             commonjs(),
             terser(),
             json()
-        ],
-        inlineDynamicImports: true
+        ]
     };
 }
 
