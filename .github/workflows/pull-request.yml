@@ -114,7 +114,7 @@ jobs:
                         The api was successfully deploy ✅
                         
                         ### Url
-                        https://orders.${{ env.STAGE }}.slippys.cool
+                        https://webhooks.${{ env.STAGE }}.slippys.cool
                         ### Stage
                         `${{ env.STAGE }}`
                         ### E2e Tests
