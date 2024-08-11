@@ -20,12 +20,14 @@ export class RestApiStack extends Stack {
   constructor(scope: Construct, id: string, props: RestApiStackProps) {
     super(scope, id, props);
 
+    const tableNames = props.webhookStack.getTableNames();
     const apiFunction = new Function(this, 'WebhooksRestApiHandler', {
       runtime: Runtime.NODEJS_18_X,
       handler: 'rest-api-handler.handler',
       code: Code.fromAsset(path.join(__dirname, '..', '..', 'build', 'rest-api')),
       environment: {
-        TABLE_NAME: props.webhookStack.getTableName(),
+        TABLE_NAME: tableNames.webhookTableName,
+        EVENT_RECORDS_TABLE_NAME: tableNames.eventRecordsTableName,
       }
     });
 

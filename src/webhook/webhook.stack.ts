@@ -13,6 +13,7 @@ export type WebhookStackProps = StackProps & {
 export class WebhookStack extends Stack {
 
     private webhookTable: Table;
+    private eventRecordsTable: Table;
 
     constructor(scope: Construct, id: string, props: WebhookStackProps) {
         super(scope, id, props);
@@ -24,34 +25,40 @@ export class WebhookStack extends Stack {
             removalPolicy: RemovalPolicy.DESTROY
         });
 
-        const eventRecordsTable = new Table(this, 'EventTable', {
+        this.eventRecordsTable = new Table(this, 'EventTable', {
             tableName: `EventTable${props.stage}`,
             partitionKey: {name: 'webhookId', type: AttributeType.STRING},
             sortKey: {name: 'timestamp', type: AttributeType.NUMBER},
             removalPolicy: RemovalPolicy.DESTROY
         });
 
+
+        const tableNames = this.getTableNames();
         const fn = new Function(this, 'DispatcherHandler', {
             runtime: Runtime.NODEJS_18_X,
             handler: 'dispatcher.handler',
             description: 'Dispatches webhook events to registered webhooks.',
             code: Code.fromAsset(path.join(__dirname, '..', '..', 'build', 'dispatcher')),
             environment: {
-                TABLE_NAME: this.getTableName(),
-                EVENT_RECORDS_TABLE_NAME: eventRecordsTable.tableName
+                TABLE_NAME: tableNames.webhookTableName,
+                EVENT_RECORDS_TABLE_NAME: tableNames.eventRecordsTableName
             }
         });
 
         this.webhookTable.grantReadWriteData(fn);
-        eventRecordsTable.grantReadWriteData(fn);
+        this.eventRecordsTable.grantReadWriteData(fn);
     }
 
     public tableReadWrite(resource: IGrantable): void {
         this.webhookTable.grantReadWriteData(resource);
+        this.eventRecordsTable.grantReadWriteData(resource);
     }
 
-    public getTableName(): string {
-        return this.webhookTable.tableName;
+    public getTableNames(): {webhookTableName: string, eventRecordsTableName: string} {
+        return {
+            webhookTableName: this.webhookTable.tableName,
+            eventRecordsTableName: this.eventRecordsTable.tableName
+        };
     }
 
 }
