@@ -1,3 +1,5 @@
+// eslint-disable-next-line unused-imports/no-unused-imports,unused-imports/no-unused-vars,@typescript-eslint/no-unused-vars
+/* global fetch */
 import fetch from 'node-fetch';
 import {Webhook} from './model';
 import {DynamoDBClient, PutItemCommand, QueryCommand} from '@aws-sdk/client-dynamodb';
